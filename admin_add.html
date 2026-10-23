@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>안경사 국가고시 스마트 암기 카드 - 문제 추가 관리자</title>
+<style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    
+    :root {
+        --primary: #4a90e2;
+        --secondary: #27ae60;
+        --bg-color: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-main: #2d3436;
+        --text-muted: #636e72;
+        --btn-hover: #357abd;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        color: var(--text-main);
+    }
+    
+    .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 600px; }
+    h1 { color: #2c3e50; margin: 0 0 10px 0; font-size: 1.5rem; font-weight: 700; }
+    
+    .nav-links {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .nav-link-btn {
+        background: white;
+        border: 1px solid #dfe6e9;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .nav-link-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 600px;
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+    select, textarea, input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dfe6e9;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 1rem;
+        background: #fafbfc;
+        transition: border 0.2s;
+    }
+    select:focus, textarea:focus, input[type="text"]:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+    }
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .helper-text {
+        font-size: 0.82rem;
+        color: #7f8c8d;
+        margin-top: 6px;
+        line-height: 1.4;
+    }
+    
+    .btn-submit {
+        background-color: var(--secondary);
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 4px 6px rgba(39, 174, 96, 0.2);
+    }
+    .btn-submit:hover { background-color: #219653; transform: translateY(-1px); }
+    
+    .json-output-section {
+        margin-top: 30px;
+        background: #2d3436;
+        color: #f1f2f6;
+        padding: 20px;
+        border-radius: 12px;
+        display: none;
+    }
+    .json-output-section.show { display: block; }
+    .json-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .json-header span { font-weight: 600; font-size: 0.9rem; color: #b2bec3; }
+    .btn-copy {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-copy:hover { background: #357abd; }
+    pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-family: 'Consolas', monospace;
+        font-size: 0.9rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>안경사 국가고시 문제 추가 도구 📝</h1>
+    <div class="nav-links">
+        <a href="advanced_flashcards.html" class="nav-link-btn">암기 카드 실행하기</a>
+        <a href="admin_add.html" class="nav-link-btn active">문제 추가하기</a>
+    </div>
+</div>
+
+<div class="container">
+    <form id="addForm">
+        <div class="form-group">
+            <label for="category">과목 (카테고리)</label>
+            <select id="category" required>
+                <!-- 동적으로 채워짐 -->
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="question">질문 (Q)</label>
+            <textarea id="question" placeholder="예: 빛이 굴절률 n₁인 매질에서..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="answer">정답 및 해설 (A)</label>
+            <textarea id="answer" placeholder="정답을 입력하세요. 수식 해설이 있다면 아래 예시처럼 작성하세요.&#10;예시: +1.00 D *(해설: F_total = F_1 + F_2 => +5.00 = +4.00 + F_2 => F_2 = +1.00 D)*" required></textarea>
+            <div class="helper-text">
+                💡 <b>수식 해설 팁:</b> 답변 안에 <code>*(해설: 공식명 => 수식계산단계 => 최종결과)*</code> 형식으로 작성하시면 메인 화면에서 자동으로 스마트 수식 카드로 변환되어 예쁘게 출력됩니다!
+            </div>
+        </div>
+        
+        <button type="submit" class="btn-submit">➕ 문제 추가 데이터 생성하기</button>
+    </form>
+    
+    <div class="json-output-section" id="outputSection">
+        <div class="json-header">
+            <span>생성된 JSON 코드 (data.json에 추가할 내용)</span>
+            <button class="btn-copy" id="copyBtn">복사하기</button>
+        </div>
+        <pre id="jsonOutput"></pre>
+        <div class="helper-text" style="color: #b2bec3; margin-top: 10px;">
+            ※ 현재 data.json 파일의 맨 마지막 대괄호(`]`) 바로 앞에 쉼표(`,`)를 붙이고 위 코드를 복사해서 붙여넣으시면 영구적으로 추가됩니다.
+        </div>
+    </div>
+</div>
+
+<script>
+    // 기존 data.json과 동일한 카테고리 목록 기준 정의
+    const defaultCategories = [
+        "의료관계법규",
+        "시광학응용",
+        "2025년 시광학이론",
+        "2024년 시광학이론",
+        "종합본"
+    ];
+
+    async function initCategories() {
+        const select = document.getElementById('category');
+        let categories = [...defaultCategories];
+        
+        try {
+            // data.json이 있다면 존재하는 카테고리를 동적으로 불러옴
+            const response = await fetch('data.json');
+            if (response.ok) {
+                const data = await response.json();
+                const fetchedCats = [...new Set(data.map(item => item.cat))];
+                fetchedCats.forEach(cat => {
+                    if (!categories.includes(cat)) categories.push(cat);
+                });
+            }
+        } catch (e) {
+            console.log('data.json 로드 실패, 기본 카테고리 사용');
+        }
+        
+        select.innerHTML = '';
+        categories.forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.innerText = cat;
+            select.appendChild(opt);
+        });
+    }
+
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const cat = document.getElementById('category').value;
+        const q = document.getElementById('question').value.trim();
+        const a = document.getElementById('answer').value.trim();
+        
+        const newObj = {
+            q: q,
+            a: a,
+            cat: cat
+        };
+        
+        const jsonString = JSON.stringify(newObj, null, 2) + ",";
+        
+        document.getElementById('jsonOutput').innerText = jsonString;
+        document.getElementById('outputSection').classList.add('show');
+        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        const text = document.getElementById('jsonOutput').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('JSON 코드가 클립보드에 복사되었습니다! data.json 파일에 붙여넣어 사용하세요.');
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', initCategories);
+</script>
+</body>
+</html>
