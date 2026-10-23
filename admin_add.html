@@ -64,18 +64,11 @@
         padding: 25px;
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-    
-    .form-group {
         margin-bottom: 20px;
     }
-    label {
-        display: block;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: #2c3e50;
-        font-size: 0.95rem;
-    }
+    
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: 700; margin-bottom: 8px; color: #2c3e50; font-size: 0.95rem; }
     select, textarea, input[type="text"] {
         width: 100%;
         padding: 12px;
@@ -91,17 +84,9 @@
         border-color: var(--primary);
         background: white;
     }
-    textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
+    textarea { resize: vertical; min-height: 100px; }
     
-    .helper-text {
-        font-size: 0.82rem;
-        color: #7f8c8d;
-        margin-top: 6px;
-        line-height: 1.4;
-    }
+    .helper-text { font-size: 0.82rem; color: #7f8c8d; margin-top: 6px; line-height: 1.4; }
     
     .btn-submit {
         background-color: var(--secondary);
@@ -119,14 +104,12 @@
     .btn-submit:hover { background-color: #219653; transform: translateY(-1px); }
     
     .json-output-section {
-        margin-top: 30px;
+        margin-top: 20px;
         background: #2d3436;
         color: #f1f2f6;
         padding: 20px;
         border-radius: 12px;
-        display: none;
     }
-    .json-output-section.show { display: block; }
     .json-header {
         display: flex;
         justify-content: space-between;
@@ -154,6 +137,14 @@
         max-height: 200px;
         overflow-y: auto;
     }
+    .badge {
+        background: #e74c3c;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        vertical-align: middle;
+    }
 </style>
 </head>
 <body>
@@ -170,9 +161,7 @@
     <form id="addForm">
         <div class="form-group">
             <label for="category">과목 (카테고리)</label>
-            <select id="category" required>
-                <!-- 동적으로 채워짐 -->
-            </select>
+            <select id="category" required></select>
         </div>
         
         <div class="form-group">
@@ -184,27 +173,32 @@
             <label for="answer">정답 및 해설 (A)</label>
             <textarea id="answer" placeholder="정답을 입력하세요. 수식 해설이 있다면 아래 예시처럼 작성하세요.&#10;예시: +1.00 D *(해설: F_total = F_1 + F_2 => +5.00 = +4.00 + F_2 => F_2 = +1.00 D)*" required></textarea>
             <div class="helper-text">
-                💡 <b>수식 해설 팁:</b> 답변 안에 <code>*(해설: 공식명 => 수식계산단계 => 최종결과)*</code> 형식으로 작성하시면 메인 화면에서 자동으로 스마트 수식 카드로 변환되어 예쁘게 출력됩니다!
+                💡 <b>수식 해설 팁:</b> 답변 안에 <code>*(해설: 공식명 => 수식계산단계 => 최종결과)*</code> 형식으로 작성하시면 메인 화면에서 자동으로 스마트 수식 카드로 변환됩니다!
             </div>
         </div>
         
-        <button type="submit" class="btn-submit">➕ 문제 추가 데이터 생성하기</button>
+        <button type="submit" class="btn-submit">➕ 임시 저장소에 문제 추가하기</button>
     </form>
-    
-    <div class="json-output-section" id="outputSection">
-        <div class="json-header">
-            <span>생성된 JSON 코드 (data.json에 추가할 내용)</span>
-            <button class="btn-copy" id="copyBtn">복사하기</button>
-        </div>
-        <pre id="jsonOutput"></pre>
-        <div class="helper-text" style="color: #b2bec3; margin-top: 10px;">
-            ※ 현재 data.json 파일의 맨 마지막 대괄호(`]`) 바로 앞에 쉼표(`,`)를 붙이고 위 코드를 복사해서 붙여넣으시면 영구적으로 추가됩니다.
-        </div>
+</div>
+
+<div class="container">
+    <div class="json-header">
+        <span>📦 내가 추가한 모든 문제 패키지 (<span id="countBadge">0</span>개)</span>
+        <button class="btn-copy" id="copyAllBtn">전체 JSON 복사하기</button>
     </div>
+    <div class="json-output-section" style="margin-top:0;">
+        <pre id="jsonOutput">추가된 문제가 없습니다.</pre>
+    </div>
+    <div class="helper-text" style="margin-top: 10px;">
+        📌 <b>GitHub Pages 반영 방법:</b><br>
+        1. 여기서 <b>[전체 JSON 복사하기]</b>를 누릅니다.<br>
+        2. 본인의 GitHub 저장소에 있는 <code>data.json</code> 파일에 들어가서 내용을 덮어쓰기 하거나 추가합니다.<br>
+        3. 깃허브에 푸시(Commit & Push)하면 웹사이트에 최종 반영됩니다!
+    </div>
+    <button id="clearBtn" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; margin-top:15px; cursor:pointer; font-size:0.85rem;">임시 저장소 초기화</button>
 </div>
 
 <script>
-    // 기존 data.json과 동일한 카테고리 목록 기준 정의
     const defaultCategories = [
         "의료관계법규",
         "시광학응용",
@@ -213,12 +207,13 @@
         "종합본"
     ];
 
+    let customQuestions = JSON.parse(localStorage.getItem('my_custom_questions') || '[]');
+
     async function initCategories() {
         const select = document.getElementById('category');
         let categories = [...defaultCategories];
         
         try {
-            // data.json이 있다면 존재하는 카테고리를 동적으로 불러옴
             const response = await fetch('data.json');
             if (response.ok) {
                 const data = await response.json();
@@ -238,6 +233,8 @@
             opt.innerText = cat;
             select.appendChild(opt);
         });
+        
+        updateOutput();
     }
 
     document.getElementById('addForm').addEventListener('submit', function(e) {
@@ -247,24 +244,44 @@
         const q = document.getElementById('question').value.trim();
         const a = document.getElementById('answer').value.trim();
         
-        const newObj = {
-            q: q,
-            a: a,
-            cat: cat
-        };
+        const newObj = { q: q, a: a, cat: cat };
         
-        const jsonString = JSON.stringify(newObj, null, 2) + ",";
+        customQuestions.push(newObj);
+        localStorage.setItem('my_custom_questions', JSON.stringify(customQuestions));
         
-        document.getElementById('jsonOutput').innerText = jsonString;
-        document.getElementById('outputSection').classList.add('show');
-        document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('question').value = '';
+        document.getElementById('answer').value = '';
+        
+        updateOutput();
+        alert('✨ 브라우저 임시 저장소에 추가되었습니다!');
     });
 
-    document.getElementById('copyBtn').addEventListener('click', function() {
+    function updateOutput() {
+        document.getElementById('countBadge').innerText = customQuestions.length;
+        if (customQuestions.length === 0) {
+            document.getElementById('jsonOutput').innerText = "추가된 문제가 없습니다.";
+        } else {
+            document.getElementById('jsonOutput').innerText = JSON.stringify(customQuestions, null, 2);
+        }
+    }
+
+    document.getElementById('copyAllBtn').addEventListener('click', function() {
+        if (customQuestions.length === 0) {
+            alert('복사할 추가된 문제가 없습니다.');
+            return;
+        }
         const text = document.getElementById('jsonOutput').innerText;
         navigator.clipboard.writeText(text).then(() => {
-            alert('JSON 코드가 클립보드에 복사되었습니다! data.json 파일에 붙여넣어 사용하세요.');
+            alert('📋 추가한 문제들의 JSON 코드가 복사되었습니다! data.json에 붙여넣어 사용하세요.');
         });
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function() {
+        if(confirm('브라우저에 임시 저장된 문제들을 모두 삭제하시겠습니까?')) {
+            customQuestions = [];
+            localStorage.removeItem('my_custom_questions');
+            updateOutput();
+        }
     });
 
     window.addEventListener('DOMContentLoaded', initCategories);
