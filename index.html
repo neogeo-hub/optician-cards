@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>안경사 국가고시 암기 카드</title>
+<title>안경사 국가고시 스마트 암기 카드</title>
 <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     
@@ -17,9 +17,7 @@
         --btn-hover: #357abd;
     }
     
-    * {
-        box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     
     body {
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -34,293 +32,117 @@
         color: var(--text-main);
     }
     
-    .header {
-        text-align: center;
-        margin-bottom: 15px;
-        width: 100%;
-        padding: 0 15px;
-    }
+    .header { text-align: center; margin-bottom: 15px; width: 100%; padding: 0 15px; }
+    h1 { color: #2c3e50; margin: 0 0 15px 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
     
-    h1 {
-        color: #2c3e50;
-        margin: 0 0 15px 0;
-        font-size: 1.6rem;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-    
-    .filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        justify-content: center;
-        margin: 0 auto 15px auto;
-        width: 100%;
-        max-width: 600px;
-    }
-    
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 auto 15px auto; width: 100%; max-width: 600px; }
     .filter-btn {
-        background-color: #dfe6e9;
-        color: var(--text-muted);
-        border: none;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        background-color: #dfe6e9; color: var(--text-muted); border: none; padding: 6px 14px;
+        border-radius: 20px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
     }
+    .filter-btn:hover { background-color: #b2bec3; color: #2d3436; }
+    .filter-btn.active { background-color: var(--primary); color: white; font-weight: 600; box-shadow: 0 2px 5px rgba(74, 144, 226, 0.3); }
     
-    .filter-btn:hover {
-        background-color: #b2bec3;
-        color: #2d3436;
-    }
-    
-    .filter-btn.active {
-        background-color: var(--primary);
-        color: white;
-        font-weight: 600;
-        box-shadow: 0 2px 5px rgba(74, 144, 226, 0.3);
-    }
-    
-    .controls {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-    
+    .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
     button.action-btn {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        background-color: var(--primary); color: white; border: none; padding: 10px 20px;
+        border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 5px;
     }
+    button.action-btn:hover { background-color: var(--btn-hover); transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+    button.action-btn:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     
-    button.action-btn:hover {
-        background-color: var(--btn-hover);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-    }
-    
-    button.action-btn:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .card-container {
-        width: 92%;
-        max-width: 480px;
-        height: 380px;
-        perspective: 1000px;
-        cursor: pointer;
-        position: relative;
-        margin: 10px 0;
-    }
-    
-    .card {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-        transform-style: preserve-3d;
-        -webkit-transform-style: preserve-3d;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-        border-radius: 20px;
-    }
-    
-    .card.is-flipped {
-        transform: rotateY(180deg);
-        -webkit-transform: rotateY(180deg);
-    }
+    .card-container { width: 92%; max-width: 520px; height: 420px; perspective: 1000px; cursor: pointer; position: relative; margin: 10px 0; }
+    .card { width: 100%; height: 100%; position: absolute; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; box-shadow: 0 12px 24px rgba(0,0,0,0.08); border-radius: 20px; }
+    .card.is-flipped { transform: rotateY(180deg); }
     
     .card-face {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--card-bg);
-        overflow: hidden;
-        transform: translateZ(0); 
-        -webkit-transform: translateZ(0);
+        width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 20px;
+        display: flex; flex-direction: column; background-color: var(--card-bg); overflow: hidden; transform: translateZ(0); 
     }
+    .card-front { border-top: 6px solid var(--primary); }
+    .card-back { background-color: #fefefe; border-top: 6px solid var(--secondary); transform: rotateY(180deg); }
     
-    .card-front {
-        border-top: 6px solid var(--primary);
-    }
-    
-    .card-back {
-        background-color: #fefefe;
-        border-top: 6px solid var(--secondary);
-        transform: rotateY(180deg);
-        -webkit-transform: rotateY(180deg);
-    }
-    
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 25px 0 25px;
-    }
-    
-    .label {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #b2bec3;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
+    .card-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px 0 25px; }
+    .label { font-size: 0.9rem; font-weight: 700; color: #b2bec3; text-transform: uppercase; letter-spacing: 1px; }
     .card-front .label { color: var(--primary); }
     .card-back .label { color: var(--secondary); }
+    .category-tag { font-size: 0.8rem; font-weight: 600; color: white; background-color: #95a5a6; padding: 4px 10px; border-radius: 12px; }
     
-    .category-tag {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: white;
-        background-color: #95a5a6;
-        padding: 4px 10px;
-        border-radius: 12px;
-    }
-    
-    .content-area {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 15px 25px 30px 25px;
-        overflow-y: auto;
-        position: relative;
-        z-index: 2;
-    }
-    
+    .content-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 15px 25px 30px 25px; overflow-y: auto; position: relative; z-index: 2; }
     .content-area::-webkit-scrollbar { width: 5px; }
     .content-area::-webkit-scrollbar-track { background: transparent; }
     .content-area::-webkit-scrollbar-thumb { background: #dfe6e9; border-radius: 10px; }
-    .content-area:hover::-webkit-scrollbar-thumb { background: #b2bec3; }
     
-    .watermark {
-        position: absolute;
-        font-size: 10rem;
-        font-weight: 900;
-        color: rgba(0,0,0,0.02);
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-        pointer-events: none;
-        user-select: none;
-    }
+    .watermark { position: absolute; font-size: 10rem; font-weight: 900; color: rgba(0,0,0,0.02); top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; user-select: none; }
+    .content { font-size: 1.2rem; font-weight: 500; color: var(--text-main); line-height: 1.65; word-break: keep-all; overflow-wrap: break-word; margin: 0; }
+    .card-back .content { font-size: 1.2rem; font-weight: 600; color: #2c3e50; line-height: 1.6; }
+    .text-center { text-align: center; } .text-left { text-align: left; }
     
-    .content {
-        font-size: 1.2rem;
-        font-weight: 500;
-        color: var(--text-main);
-        line-height: 1.65;
-        word-break: keep-all;
-        overflow-wrap: break-word;
-        margin: 0;
-    }
+    .list-number { color: var(--secondary); font-weight: 800; margin-right: 4px; }
+    .hint { position: absolute; bottom: 15px; left: 0; width: 100%; text-align: center; font-size: 0.85rem; font-weight: 500; color: #b2bec3; z-index: 2; }
     
-    .card-back .content {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #1e8449; 
-        line-height: 1.6;
-    }
-    
-    .text-center { text-align: center; }
-    .text-left { text-align: left; }
-    
-    .list-number {
-        color: var(--secondary);
-        font-weight: 800;
-        margin-right: 4px;
-    }
-    
-    .hint {
-        position: absolute;
-        bottom: 15px;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: #b2bec3;
-        z-index: 2;
-    }
-    
-    .nav-buttons {
-        display: flex;
-        justify-content: space-between;
-        width: 92%;
-        max-width: 480px;
-        margin-top: 20px;
-    }
-    
-    .nav-buttons button {
-        background-color: #ffffff;
-        color: var(--text-main);
-        width: 45%;
-        border: 1px solid #dfe6e9;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-    
-    .nav-buttons button:hover {
-        background-color: #f1f2f6;
-        border-color: #ced6e0;
-    }
-    
-    .progress {
+    /* --- 스마트 수식 해설창 스타일 (새로 추가됨) --- */
+    .solution-box {
+        background: #f8fbff;
+        border: 1px solid #dce8f6;
+        border-radius: 12px;
+        padding: 15px;
         margin-top: 15px;
-        font-weight: 600;
-        color: #a4b0be;
+        text-align: left;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .solution-title {
+        color: #2980b9;
+        font-weight: 800;
         font-size: 0.95rem;
-        background: #ffffff;
-        padding: 5px 15px;
-        border-radius: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(5px); }
-        to { opacity: 1; transform: translateY(0); }
+    .step-container { display: flex; flex-direction: column; gap: 8px; }
+    .step-item {
+        background: white;
+        border-left: 3.5px solid #bdc3c7;
+        padding: 10px 12px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: transform 0.2s;
     }
-    .fade-in {
-        animation: fadeIn 0.3s ease forwards;
+    .step-item:hover { transform: translateX(2px); }
+    .step-item.final-step { border-left-color: #27ae60; background: #f0fdf4; }
+    .step-label { font-size: 0.75rem; font-weight: 800; color: #7f8c8d; text-transform: uppercase; }
+    .step-item.final-step .step-label { color: #27ae60; }
+    .formula-text {
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 1.05rem;
+        color: #34495e;
+        font-weight: 600;
+        letter-spacing: -0.2px;
     }
+    .final-step .formula-text { color: #1e8449; font-weight: 700; font-size: 1.1rem; }
+    sub, sup { font-size: 0.75em; line-height: 0; }
+    /* ------------------------------------------- */
 
-    /* 로딩 상태용 스타일 */
-    .loading-text {
-        text-align: center;
-        font-size: 1.2rem;
-        color: #b2bec3;
-        margin-top: 20px;
-    }
+    .nav-buttons { display: flex; justify-content: space-between; width: 92%; max-width: 480px; margin-top: 20px; }
+    .nav-buttons button { background-color: #ffffff; color: var(--text-main); width: 45%; border: 1px solid #dfe6e9; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .nav-buttons button:hover { background-color: #f1f2f6; border-color: #ced6e0; }
+    
+    .progress { margin-top: 15px; font-weight: 600; color: #a4b0be; font-size: 0.95rem; background: #ffffff; padding: 5px 15px; border-radius: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease forwards; }
 </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>안경사 국가고시 총정리 📝</h1>
-    
-    <div class="filters" id="filterContainer">
-        <!-- Filter buttons will be generated here -->
-    </div>
-
+    <h1>안경사 국가고시 스마트 암기 카드 🧠</h1>
+    <div class="filters" id="filterContainer"></div>
     <div class="controls">
         <button id="shuffleBtn" class="action-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
@@ -331,7 +153,6 @@
 
 <div class="card-container" id="cardContainer">
     <div class="card" id="flashcard">
-        <!-- FRONT -->
         <div class="card-face card-front">
             <div class="watermark">Q</div>
             <div class="card-header">
@@ -341,9 +162,8 @@
             <div class="content-area">
                 <div class="content text-center" id="questionText">데이터를 불러오는 중입니다...</div>
             </div>
-            <div class="hint">👆 카드를 터치하여 정답 확인</div>
+            <div class="hint">👆 카드를 터치하여 정답 및 해설 확인</div>
         </div>
-        <!-- BACK -->
         <div class="card-face card-back">
             <div class="watermark">A</div>
             <div class="card-header">
@@ -365,14 +185,12 @@
 </div>
 
 <script>
-    // State
     let allFlashcards = [];
-    let currentCategory = "전체보기"; // 기본값을 "전체보기"로 설정
+    let currentCategory = "전체보기";
     let filteredCards = [];
     let currentIndices = [];
     let currentIndex = 0;
     
-    // DOM Elements
     const card = document.getElementById('flashcard');
     const qText = document.getElementById('questionText');
     const aText = document.getElementById('answerText');
@@ -381,35 +199,25 @@
     const progressText = document.getElementById('progressText');
     const filterContainer = document.getElementById('filterContainer');
 
-    // JSON 데이터 불러오기
     async function loadData() {
         try {
             const response = await fetch('data.json');
-            if (!response.ok) {
-                throw new Error('네트워크 응답에 문제가 있습니다.');
-            }
+            if (!response.ok) throw new Error('네트워크 응답 에러');
             allFlashcards = await response.json();
-            
             setupFilters();
-            // 초기 데이터를 "전체보기"로 필터링
             filterByCategory("전체보기");
         } catch (error) {
-            qText.innerHTML = "데이터를 불러오는데 실패했습니다.<br><br><span style='font-size: 0.85em; color: #e74c3c;'>※ 주의: 보안 정책으로 인해 로컬(내 컴퓨터)에서 HTML 파일을 직접 열 경우 JSON 파일을 불러올 수 없습니다. VS Code의 'Live Server' 확장 프로그램 등을 이용해 실행해 주세요.</span>";
+            qText.innerHTML = "데이터 로드 실패.<br>VS Code Live Server 등을 이용해 실행해 주세요.";
             aText.innerHTML = "데이터 로드 실패";
-            console.error('Error fetching data:', error);
         }
     }
 
-    // Setup Categories
     function setupFilters() {
         const catSet = new Set(allFlashcards.map(c => c.cat));
-        
-        let categories = ["전체보기"];
-        categories = [...categories, ...Array.from(catSet)];
+        let categories = ["전체보기", ...Array.from(catSet)];
         
         categories.forEach(cat => {
             const btn = document.createElement('button');
-            // 기본값으로 선택된 카테고리인 경우 active 클래스 추가
             btn.className = 'filter-btn' + (cat === currentCategory ? ' active' : '');
             btn.innerText = cat;
             btn.dataset.cat = cat;
@@ -419,41 +227,62 @@
     }
 
     function filterByCategory(cat, btnElement) {
-        // 모든 버튼에서 active 제거
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        
-        // 클릭한 버튼 또는 전달받은 카테고리와 일치하는 버튼에 active 추가
-        if (btnElement) {
-            btnElement.classList.add('active');
-        } else {
+        if (btnElement) btnElement.classList.add('active');
+        else {
             const defaultBtn = document.querySelector(`.filter-btn[data-cat="${cat}"]`);
             if(defaultBtn) defaultBtn.classList.add('active');
         }
 
         currentCategory = cat;
-        if (cat === "전체보기") {
-            filteredCards = [...allFlashcards];
-        } else {
-            filteredCards = allFlashcards.filter(c => c.cat === cat);
-        }
-        
+        filteredCards = cat === "전체보기" ? [...allFlashcards] : allFlashcards.filter(c => c.cat === cat);
         currentIndices = [...Array(filteredCards.length).keys()];
         currentIndex = 0;
         
         if (card.classList.contains('is-flipped')) {
             card.classList.remove('is-flipped');
-            setTimeout(() => updateCard(), 300);
+            setTimeout(updateCard, 300);
         } else {
             updateCard();
         }
     }
 
+    // 스마트 텍스트 포맷터 (수식을 단계별로 시각화)
     function formatText(text, isAnswer) {
-        let formatted = text.replace(/\n/g, '<br>');
+        let formatted = text.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
         
         if (isAnswer) {
             formatted = formatted.replace(/(^|<br>\s*)(\d+\.)/g, '$1<span class="list-number">$2</span>');
-            formatted = formatted.replace(/\*\(해설:(.*?)\)\*/g, '<span style="color:#7f8c8d; font-size:0.95em; font-weight:500; display:block; margin-top:10px; border-top:1px dashed #ecf0f1; padding-top:10px;">💡 해설:$1</span>');
+            
+            // 기존 텍스트의 *(해설: ...)* 부분을 스마트 파싱하여 단계별 박스로 변환합니다.
+            formatted = formatted.replace(/\*\s*\(\s*해설\s*:\s*([\s\S]*?)\s*\)\s*\*/g, function(match, explanation) {
+                let html = '<div class="solution-box"><div class="solution-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 원리 및 수식 해설</div>';
+                
+                // 수식 기호 정제 (아래첨자, 위첨자 적용)
+                let parsedExp = explanation
+                    .replace(/([A-Za-z])_\{([A-Za-z0-9가-힣]+)\}/g, '$1<sub>$2</sub>')
+                    .replace(/([A-Za-z])_([A-Za-z0-9]+)/g, '$1<sub>$2</sub>')
+                    .replace(/\^([0-9]+)/g, '<sup>$1</sup>');
+
+                // 화살표(=>)를 기준으로 Step 나누기
+                if (parsedExp.includes('=>')) {
+                    let steps = parsedExp.split('=>');
+                    html += '<div class="step-container">';
+                    steps.forEach((step, idx) => {
+                        let isFinal = idx === steps.length - 1;
+                        html += `<div class="step-item ${isFinal ? 'final-step' : ''}">
+                                    <div class="step-label">${isFinal ? '최종 결과 (Result)' : 'Step ' + (idx + 1)}</div>
+                                    <div class="step-content formula-text">${step.trim()}</div>
+                                 </div>`;
+                    });
+                    html += '</div>';
+                } else {
+                    // 수식 단계 구분이 없는 일반 해설
+                    html += `<div class="step-content formula-text" style="padding: 10px; background: white; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-weight:500;">${parsedExp.trim()}</div>`;
+                }
+                html += '</div>';
+                return html;
+            });
         }
         return formatted;
     }
@@ -462,53 +291,29 @@
         if(filteredCards.length === 0) return;
         
         const data = filteredCards[currentIndices[currentIndex]];
-        
-        qText.classList.remove('fade-in');
-        aText.classList.remove('fade-in');
-        
+        qText.classList.remove('fade-in'); aText.classList.remove('fade-in');
         void qText.offsetWidth;
         
-        let q_formatted = data.q;
-        q_formatted = q_formatted.replace(/&lt;br&gt;/g, '<br>').replace(/<br>/g, '<br>');
-        
-        qText.innerHTML = formatText(q_formatted, false);
+        qText.innerHTML = formatText(data.q, false);
         aText.innerHTML = formatText(data.a, true);
         
-        qText.classList.add('fade-in');
-        aText.classList.add('fade-in');
+        qText.classList.add('fade-in'); aText.classList.add('fade-in');
         
-        if(data.q.length > 50) {
-            qText.classList.add('text-left');
-            qText.classList.remove('text-center');
-        } else {
-            qText.classList.add('text-center');
-            qText.classList.remove('text-left');
-        }
-
-        if(data.a.includes('<br>') || data.a.length > 40) {
-            aText.classList.add('text-left');
-            aText.classList.remove('text-center');
-        } else {
-            aText.classList.add('text-center');
-            aText.classList.remove('text-left');
-        }
+        qText.className = `content ${data.q.length > 50 ? 'text-left' : 'text-center'} fade-in`;
+        aText.className = `content ${data.a.length > 40 || data.a.includes('<br>') ? 'text-left' : 'text-center'} fade-in`;
         
         qCategory.innerText = data.cat;
         aCategory.innerText = data.cat;
         
         const catColors = {
-            "의료관계법규": "#e74c3c",
-            "시광학응용": "#8e44ad",
-            "2025년 시광학이론": "#f39c12", 
-            "2024년 시광학이론": "#e67e22", 
-            "종합본": "#34495e"
+            "의료관계법규": "#e74c3c", "시광학응용": "#8e44ad",
+            "2025년 시광학이론": "#f39c12", "2024년 시광학이론": "#e67e22", "종합본": "#34495e"
         };
         const color = catColors[data.cat] || "#95a5a6";
         qCategory.style.backgroundColor = color;
         aCategory.style.backgroundColor = color;
 
         progressText.innerText = `${currentIndex + 1} / ${filteredCards.length}`;
-        
         document.querySelectorAll('.content-area').forEach(el => el.scrollTop = 0);
     }
 
@@ -519,74 +324,42 @@
         }
     }
 
-    card.addEventListener('click', () => {
-        card.classList.toggle('is-flipped');
-    });
-
+    card.addEventListener('click', () => card.classList.toggle('is-flipped'));
+    
     document.getElementById('prevBtn').addEventListener('click', () => {
-        if (currentIndex > 0) {
-            currentIndex--;
-            if (card.classList.contains('is-flipped')) {
-                card.classList.remove('is-flipped');
-                setTimeout(() => updateCard(), 300);
-            } else {
-                updateCard();
-            }
-        }
+        if (currentIndex > 0) { currentIndex--; updateState(); }
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-        if (currentIndex < filteredCards.length - 1) {
-            currentIndex++;
-            if (card.classList.contains('is-flipped')) {
-                card.classList.remove('is-flipped');
-                setTimeout(() => updateCard(), 300);
-            } else {
-                updateCard();
-            }
-        }
+        if (currentIndex < filteredCards.length - 1) { currentIndex++; updateState(); }
     });
 
     document.getElementById('shuffleBtn').addEventListener('click', () => {
-        shuffleArray(currentIndices);
-        currentIndex = 0;
-        if (card.classList.contains('is-flipped')) {
-            card.classList.remove('is-flipped');
-            setTimeout(() => updateCard(), 300);
-        } else {
-            updateCard();
-        }
+        shuffleArray(currentIndices); currentIndex = 0; updateState();
     });
 
-    let touchStartX = 0;
-    let touchEndX = 0;
+    function updateState() {
+        if (card.classList.contains('is-flipped')) {
+            card.classList.remove('is-flipped');
+            setTimeout(updateCard, 300);
+        } else updateCard();
+    }
+
+    let touchStartX = 0, touchEndX = 0;
     const container = document.getElementById('cardContainer');
-
-    container.addEventListener('touchstart', e => {
-        touchStartX = e.changedTouches[0].screenX;
-    }, {passive: true});
-
+    container.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
     container.addEventListener('touchend', e => {
         touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
+        if (touchEndX < touchStartX - 50) document.getElementById('nextBtn').click();
+        if (touchEndX > touchStartX + 50) document.getElementById('prevBtn').click();
     }, {passive: true});
-
-    function handleSwipe() {
-        const threshold = 50;
-        if (touchEndX < touchStartX - threshold) document.getElementById('nextBtn').click();
-        if (touchEndX > touchStartX + threshold) document.getElementById('prevBtn').click();
-    }
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
         if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
-        if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            card.click();
-        }
+        if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); card.click(); }
     });
 
-    // 시작 시 JSON 데이터 불러오기
     window.addEventListener('DOMContentLoaded', loadData);
 </script>
 </body>
