@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>국가고시 암기카드</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      height: 100vh; margin: 0; background-color: #f8fafc; 
+    }
+    .header {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      color: #1e293b;
+      margin: 0 0 8px 0;
+    }
+    .card-container { 
+      width: 90%; max-width: 380px; height: 280px; 
+      perspective: 1000px; margin-bottom: 24px; cursor: pointer; 
+      /* 모바일 터치 하이라이트 제거 */
+      -webkit-tap-highlight-color: transparent; 
+    }
+    .card { 
+      width: 100%; height: 100%; position: relative; 
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); 
+      transform-style: preserve-3d; 
+    }
+    .card.is-flipped { transform: rotateY(180deg); }
+    .card-face { 
+      position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+      display: flex; align-items: center; justify-content: center; padding: 24px; 
+      box-sizing: border-box; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); 
+      text-align: center; word-break: keep-all; line-height: 1.6; font-size: 1.1rem; 
+      /* 줄바꿈(\n) 유지 */
+      white-space: pre-wrap; 
+    }
+    .card-front { 
+      background-color: #ffffff; color: #334155; font-weight: 700; border: 2px solid #e2e8f0;
+    }
+    .card-back { 
+      background-color: #3b82f6; color: #ffffff; transform: rotateY(180deg); font-weight: 500; 
+    }
+    .controls { 
+      display: flex; gap: 12px; width: 90%; max-width: 380px;
+    }
+    button { 
+      flex: 1; padding: 14px 20px; border: none; border-radius: 12px; 
+      background-color: #e2e8f0; color: #475569; font-size: 1.05rem; 
+      font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active { background-color: #cbd5e1; transform: scale(0.96); }
+    .progress { margin-top: 20px; color: #64748b; font-size: 0.95rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📝 요점정리 암기카드</h1>
+  </div>
+
+  <div class="card-container" id="cardContainer">
+    <div class="card" id="card">
+      <div class="card-face card-front" id="frontText">질문이 여기에 표시됩니다.</div>
+      <div class="card-face card-back" id="backText">답변이 여기에 표시됩니다.</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevCard()">◀ 이전</button>
+    <button onclick="shuffleCards()">🔀 섞기</button>
+    <button onclick="nextCard()">다음 ▶</button>
+  </div>
+  <div class="progress" id="progressText">1 / 1</div>
+
+  <script>
+    // 교정된 암기카드 전체 데이터
+    let flashcards = [
+      { q: "외안근이 부착되고 안구 형태를 유지하며, 불규칙하게 배열된 아교섬유로 구성된 치밀한 섬유조직인 눈의 구조는?", a: "공막" },
+      { q: "홍채가 조직의 영양을 공급받는 주된 동맥 혈관 고리는?", a: "홍채근동맥고리" },
+      { q: "풍부한 색소로 광선을 차단하고, 망막 외층 1/3 부위에 영양을 공급하는 안구 벽의 막은?", a: "맥락막" },
+      { q: "중심시력을 담당하며 중앙에 함몰 부위가 있고 엽황소(xanthophyll) 색소를 함유하는 망막 구조는?", a: "황반" },
+      { q: "연령 증가에 따른 수정체의 대표적인 두께 변화는?", a: "두께가 증가한다." },
+      { q: "물, 히알루론산, 아교섬유로 구성되어 투명한 겔 상태를 유지하며 안구 형태를 유지하는 조직은?", a: "유리체" },
+      { q: "눈꺼풀의 조직층을 가장 바깥쪽부터 안쪽 순서대로 나열하면?", a: "피부층 → 근육층 → 눈꺼풀판 → 눈꺼풀결막" },
+      { q: "눈물막의 가장 안쪽 점액층 성분을 분비하여 소수성 각막상피를 친수성으로 만들어주는 세포는?", a: "술잔세포" },
+      { q: "상사근(위곤근)을 지배하는 뇌신경은?", a: "도르래신경 (제4뇌신경)" },
+      { q: "5 m 시력표 측정 시 가장 큰 시표인 0.1 시표를 1 m 거리에서도 읽지 못할 경우 진행하는 시력검사 단계는?", a: "손가락세기 (지수, Finger Counting)" },
+      { q: "밝은 장소보다 어두운 장소에서 시력이 오히려 더 잘 보이는 상태를 나타내는 증상은?", a: "주간맹" },
+      { q: "선천적으로 시력이 0.1 이하이고 사물을 흑백으로만 인지하며 원뿔세포의 기능 손상이 나타나는 색각이상은?", a: "전색맹" },
+      { q: "정시나 원시인 사람이 과도한 근거리 작업을 한 후 조절연축으로 인해 먼 곳이 흐려 보이는 상태는?", a: "거짓근시 (가성근시)" },
+      { q: "주시점을 원거리에서 근거리로 이동할 때 나타나는 안구의 동시 운동 현상은?", a: "눈모음 (폭주, Convergence)" },
+      { q: "제2편위각이 제1편위각보다 크고, 장애가 있는 근육 방향으로 안구운동이 제한되는 사시 종류는?", a: "마비사시" },
+      { q: "한쪽 눈에 광범위한 망막질환이 있을 때, 병환 눈의 직접대광반사는 소실되나 간접대광반사는 정상을 보이는 동공 이상은?", a: "구심성 동공운동장애\n(마커스건 동공, Marcus Gunn pupil)" },
+      { q: "가돌림신경(제6뇌신경)이 마비되었을 때 안구에 나타나는 사시 상태는?", a: "내사시" },
+      { q: "세극등과 코발트블루 필터를 사용하여 눈물막 점액층의 안정성 및 건조점 발생 시간을 측정하는 검사는?", a: "눈물막파괴시간 검사 (TBUT)" },
+      { q: "녹농균각막궤양의 전형적인 임상적 특징 2가지는?", a: "1. 청록색을 띠는 삼출물과 침윤\n2. 소프트콘택트렌즈 착용자에게 흔히 발생" },
+      { q: "세균단백질에 대한 지연형 과민반응으로 각막가장자리에 1~3 mm 크기의 삼각형 결절을 형성하는 질환은?", a: "플릭텐각결막염" },
+      { q: "야맹증, 각막연화증, 비토반점(Bitot's spot)을 특징으로 하는 각막 질환은?", a: "비타민 A 결핍각막궤양" },
+      { q: "유리체 내에 칼슘 및 지방산 화합물이 산재하여 보이며 주로 60세 이상 노인에게 자각증상 없이 나타나는 질환은?", a: "별모양유리체증 (Asteroid hyalosis)" },
+      { q: "장내바이러스 제70형이 원인이며, 8~48시간의 짧은 잠복기와 결막하출혈을 특징으로 하는 질환은?", a: "급성출혈결막염 (아폴로눈병)" },
+      { q: "봄과 여름철 사춘기 전에 발병하여 거대유두와 끈끈한 점액성 분비물을 보이는 결막염은?", a: "봄철각결막염" },
+      { q: "한쪽 눈의 천공성 외상이나 수술 후 반대편 눈에 양안성 포도막염이 발생하는 질환은?", a: "교감안염" },
+      { q: "망막 중심동맥 폐쇄 시 안저 검사에서 관찰되는 전형적인 시신경/망막 소견은?", a: "망막이 창백해지고 황반부에 체리적색 반점(Cherry-red spot)이 나타난다." },
+      { q: "안경테의 림 상단에 프론트를 덧붙여 원용과 근용으로 상하 개폐가 가능한 안경테 종류는?", a: "알바이트테" },
+      { q: "안경렌즈 소재가 갖추어야 할 이상적인 아베수와 굴절률의 조건은?", a: "아베수가 크고, 굴절률이 클 것" },
+      { q: "CR-39 소재에 비해 폴리카보네이트(Polycarbonate) 렌즈가 가진 가장 탁월한 물리적 특성은?", a: "내충격성이 매우 크다." },
+      { q: "이중초점렌즈 중 원용부와 근용부 재질이 동일하고 근용부 상단에서 상의 도약이 없는 형태는?", a: "EX(Executive)형" },
+      { q: "이중초점렌즈와 비교하였을 때 누진굴절력렌즈가 갖는 가장 주요한 시야적 장점은?", a: "원거리부터 근거리까지 명시역이 연속적이다." },
+      { q: "눈의 색수차 원리를 이용하여 구면굴절력의 과교정 및 저교정 여부를 검사하는 검사법은?", a: "적록검사" },
+      { q: "비정시안을 완전교정 안경렌즈와 동일한 굴절력의 콘택트렌즈로 교정했을 때 교정 상태 변화는?", a: "오목(-)렌즈: 저교정\n볼록(+)렌즈: 과교정" },
+      { q: "강주경선 굴절력이 +5.00 D, 약주경선 굴절력이 +3.00 D인 토릭렌즈에 의해 형성되는 최소착란원의 위치는?", a: "렌즈 뒤 25.0 cm\n(평균 굴절력 +4.00 D의 초점거리)" },
+      { q: "S +4.00 D C -2.00 D Ax 90° 토릭렌즈에서 45° 경선의 굴절력은?", a: "+3.00 D" },
+      { q: "S -5.00 D 안경렌즈의 광학중심점에서 위로 1 cm 떨어진 지점을 시선이 통과할 때 눈에 미치는 프리즘 효과는?", a: "5Δ BU (Base Up)" },
+      { q: "굴절률 1.5인 매질 속에서 진행하는 빛의 속도는?", a: "2.0 × 10⁸ m/s" },
+      { q: "어떤 매질에서 공기 중으로 빛이 진행할 때 임계각이 30°라면 이 매질의 굴절률은?", a: "2.0" },
+      { q: "굴절률 1.5인 봉상의 유리봉 한쪽 끝에 굴절력 +5.00 D를 만들고자 할 때 정점의 곡률반경은?", a: "10 cm (0.1 m)" },
+      { q: "공기 중에서 렌즈 앞 15 cm 지점에 위치한 물체의 상이 2배의 도입실상으로 맺힐 때 상의 위치는?", a: "렌즈 뒤 30 cm" },
+      { q: "영의 이중 슬릿 간섭실험에서 간섭무늬 사이의 간격을 넓게 만드는 방법은?", a: "이중 슬릿 사이의 간격을 좁힌다." },
+      { q: "단일 슬릿 회절실험에서 회절무늬의 간격이 가장 넓게 관측되는 가시광선 색상은?", a: "적색광 (파장이 가장 긺)" },
+      { q: "편광축이 서로 직각(90°)을 이루고 있는 두 편광판을 무편광 빛이 통과할 때 최종 투과광의 세기는?", a: "0" },
+      { q: "현행 의료법상 의료인의 면허 및 전문의 자격 인정권을 가진 주체는?", a: "보건복지부장관" },
+      { q: "의료기사 등에 관한 법률상 안경사가 실태 및 취업상황을 보건복지부장관에게 신고해야 하는 주기 및 개설등록 기관은?", a: "3년마다\n특별자치시장·특별자치도지사·시장·군수·구청장에게 등록" },
+      { q: "안경사가 업무상 알게 된 타인의 비밀을 누설하였을 때 적용되는 벌칙은?", a: "3년 이하의 징역 또는 3천만원 이하의 벌금" },
+      { q: "굴절검사 시 현성검사에서 +3.00 D, 조절마비검사에서 +5.50 D가 측정된 원시안의 잠복원시량은?", a: "+2.50 D" },
+      { q: "S -1.00 D C -1.00 D Ax 60° 렌즈로 완전교정되는 눈의 강주경선 방향은?", a: "150°" },
+      { q: "수직경선 굴절력이 61 D, 수평경선 굴절력이 58 D인 눈(정시안 굴절력 60 D)을 교정하기 위한 렌즈 처방은?", a: "S +2.00 D C -3.00 D Ax 180°" },
+      { q: "5 m 시력표의 0.1 시표를 1 m 거리에서 겨우 판독하였을 때 환자의 시력은?", a: "0.02" },
+      { q: "굴절검사 시 조절 개입을 방지하기 위하여 눈을 인위적으로 근시 상태로 만들어 원용 교정굴절력을 구하는 방법은?", a: "운무법 (Fogging method)" },
+      { q: "원용 교정굴절력이 S +3.00 D C -1.00 D Ax 90°일 때, 등가구면굴절력(S.E.)은?", a: "+2.50 D" },
+      { q: "MEM 동적검영법 검사 시 반사광선이 역행할 때 중화점을 찾기 위해 가입해야 하는 렌즈는?", a: "(+) 구면렌즈" },
+      { q: "S -1.00 D C -0.50 D Ax 80° 처방을 S+C 표기로 전환하였을 때 원주렌즈의 난시축 방향은?", a: "170°" },
+      { q: "박싱시스템으로 측정한 안경태의 기준점간거리가 70 mm, 연결부 길이가 20 mm일 때 렌즈삽입부 가로 크기의 박싱 표기는?", a: "50 □ 20" },
+      { q: "안경 착용 시 무게를 가장 많이 받는 안경테 부위는?", a: "코받침" },
+      { q: "원용 처방이 S -1.50 D C -1.00 D Ax 90°이고 근용 처방이 C +1.00 D Ax 180°일 때, 근용 가입도(Add)는?", a: "2.50 D" },
+      { q: "원용 처방 OU: S +2.00 D C -1.00 D Ax 90°, Add 2.00 D인 안경의 근용굴절력 표기는?", a: "OU: S +4.00 D C -1.00 D Ax 90°" },
+      { q: "내사위 환자를 교정하기 위한 처방 프리즘의 기지방향(Base)과 임상적 목적은?", a: "기지 외측 (Base Out, BO)\n폭주부담 감소" },
+      { q: "눈을 뜬 상태에서 각막 조직에 산소를 공급하는 가장 주된 공급원은?", a: "대기" },
+      { q: "눈물층의 가장 바깥층에 위치하며 수분 증발을 방지하는 지질 성분을 분비하는 기저 샘은?", a: "마이봄샘" },
+      { q: "콘택트렌즈 장기 착용 중 발생하는 각막 저산소증 상태에서 나타나는 대표적인 대사 변화는?", a: "각막 조직 내 젖산(Lactic acid) 증가" },
+      { q: "볼록거울의 결상 원리를 이용하여 각막 전면의 곡률반경을 측정하는 광학 기기는?", a: "각막곡률계 (Keratometer)" },
+      { q: "안경렌즈의 후정점굴절력을 측정하고 광학중심점을 검출 및 인점하는 기기는?", a: "렌즈미터 (Lensmeter)" },
+      { q: "직상검안경과 비교하였을 때 도상검안경이 가지는 관찰 시야 및 배율상의 특징은?", a: "낮은 배율로 넓은 범위를 관찰할 수 있다." }
+    ];
+
+    let currentIndex = 0;
+    const card = document.getElementById('card');
+    const frontText = document.getElementById('frontText');
+    const backText = document.getElementById('backText');
+    const progressText = document.getElementById('progressText');
+    const cardContainer = document.getElementById('cardContainer');
+
+    function updateCard() {
+      // 카드가 뒤집혀 있다면 애니메이션 없이 원상태로 복구
+      card.style.transition = 'none';
+      card.classList.remove('is-flipped');
+      
+      // 약간의 지연 후 내용 업데이트 및 전환 효과 복구
+      setTimeout(() => {
+        frontText.innerText = flashcards[currentIndex].q;
+        backText.innerText = flashcards[currentIndex].a;
+        progressText.innerText = `${currentIndex + 1} / ${flashcards.length}`;
+        card.style.transition = 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1)';
+      }, 50);
+    }
+
+    // 카드 터치 시 뒤집기
+    cardContainer.addEventListener('click', () => {
+      card.classList.toggle('is-flipped');
+    });
+
+    // 다음 카드로
+    function nextCard() {
+      if (currentIndex < flashcards.length - 1) {
+        currentIndex++;
+        updateCard();
+      } else {
+        alert("마지막 카드입니다!");
+      }
+    }
+
+    // 이전 카드로
+    function prevCard() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateCard();
+      }
+    }
+
+    // 카드 랜덤 섞기
+    function shuffleCards() {
+      if(confirm("카드의 순서를 무작위로 섞으시겠습니까?")) {
+        for (let i = flashcards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+        }
+        currentIndex = 0;
+        updateCard();
+      }
+    }
+
+    // 스와이프(터치 드래그) 기능 추가 (모바일 편의성)
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    cardContainer.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, {passive: true});
+
+    cardContainer.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, {passive: true});
+
+    function handleSwipe() {
+      const swipeDistance = touchEndX - touchStartX;
+      // 50px 이상 스와이프 시 동작
+      if (swipeDistance < -50) {
+        nextCard(); // 왼쪽으로 스와이프 -> 다음
+      }
+      if (swipeDistance > 50) {
+        prevCard(); // 오른쪽으로 스와이프 -> 이전
+      }
+    }
+
+    // 초기화
+    updateCard();
+  </script>
+</body>
+</html>
