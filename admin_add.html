@@ -57,6 +57,23 @@
         border-color: var(--primary);
     }
     
+    /* 파일 업로드 안내 박스 */
+    .upload-box {
+        width: 100%;
+        max-width: 600px;
+        background: #fff;
+        border: 2px dashed #4a90e2;
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .upload-box.loaded {
+        border-color: var(--secondary);
+        background: #f0fdf4;
+    }
+    
     .container {
         width: 100%;
         max-width: 600px;
@@ -65,7 +82,9 @@
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         margin-bottom: 20px;
+        display: none; /* 파일 업로드 전에는 숨김 */
     }
+    .container.active { display: block; }
     
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: 700; margin-bottom: 8px; color: #2c3e50; font-size: 0.95rem; }
@@ -111,7 +130,9 @@
         width: 100%;
         max-width: 600px;
         text-align: center;
+        display: none;
     }
+    .action-panel.active { display: block; }
     .btn-download {
         background: #e67e22;
         color: white;
@@ -151,7 +172,16 @@
     </div>
 </div>
 
-<div class="container">
+<!-- 1단계: 기존 data.json 파일 업로드 영역 -->
+<div class="upload-box" id="uploadBox">
+    <h3>📂 기존 data.json 파일 불러오기</h3>
+    <p style="font-size: 0.9rem; color: #636e72; margin-bottom: 12px;">안전한 연동을 위해 내 컴퓨터에 있는 <b>data.json</b> 파일을 선택해주세요.</p>
+    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+    <button type="button" class="action-btn" id="fileSelectBtn" style="margin: 0 auto; background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">파일 선택하기</button>
+</div>
+
+<!-- 2단계: 문제 입력 폼 -->
+<div class="container" id="mainContainer">
     <form id="addForm">
         <div class="form-group">
             <label for="category">과목 (카테고리)</label>
@@ -175,14 +205,15 @@
     </form>
 </div>
 
-<div class="action-panel">
-    <div class="status-msg" id="statusMsg">원격 data.json 로딩 중...</div>
+<!-- 3단계: 다운로드 패널 -->
+<div class="action-panel" id="actionPanel">
+    <div class="status-msg" id="statusMsg">연동 완료</div>
     <button class="btn-download" id="downloadBtn">📥 병합된 최신 data.json 다운로드</button>
     <div>
         <button class="btn-clear" id="clearBtn">새로 추가한 목록 초기화 (비우기)</button>
     </div>
     <div class="helper-text" style="color: #95a5a6; margin-top: 15px;">
-        💡 이 버튼을 누르면 원격 <b>data.json</b>에 <b>새로 추가한 문제들만 정확히 중복 없이 합쳐진</b> 최종 파일이 다운로드됩니다.
+        💡 버튼을 누르면 기존 문제와 <b>새로 추가한 문제들</b>이 중복 없이 완벽히 병합된 최신 <b>data.json</b> 파일이 다운로드됩니다.
     </div>
 </div>
 
@@ -198,29 +229,42 @@
     let originalData = [];
     let customQuestions = JSON.parse(localStorage.getItem('my_custom_questions') || '[]');
 
-    async function initData() {
+    const fileInput = document.getElementById('jsonFileInput');
+    const fileSelectBtn = document.getElementById('fileSelectBtn');
+    const uploadBox = document.getElementById('uploadBox');
+    const mainContainer = document.getElementById('mainContainer');
+    const actionPanel = document.getElementById('actionPanel');
+
+    fileSelectBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                originalData = JSON.parse(event.target.result);
+                setupApp();
+                uploadBox.classList.add('loaded');
+                uploadBox.innerHTML = `<h3>✅ data.json 로드 완료! (${originalData.length}개의 기존 문제)</h3>`;
+                mainContainer.classList.add('active');
+                actionPanel.classList.add('active');
+            } catch (err) {
+                alert('JSON 파일 형식이 올바르지 않습니다.');
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    function setupApp() {
         const select = document.getElementById('category');
         let categories = [...defaultCategories];
         
-        // 알려주신 정확한 전체 절대 경로에 캐시 방지용 쿼리스트링 추가
-        const targetUrl = 'https://neogeo-hub.github.io/optician-cards/data.json?t=' + new Date().getTime();
-        
-        try {
-            console.log("data.json 호출 중:", targetUrl);
-            const response = await fetch(targetUrl);
-            if (response.ok) {
-                originalData = await response.json();
-                console.log("✅ data.json 로드 성공! 총 문제 수:", originalData.length);
-                const fetchedCats = [...new Set(originalData.map(item => item.cat))];
-                fetchedCats.forEach(cat => {
-                    if (!categories.includes(cat)) categories.push(cat);
-                });
-            } else {
-                console.warn("data.json 응답 오류 상태 코드:", response.status);
-            }
-        } catch (e) {
-            console.error('data.json 불러오기 예외 발생:', e);
-        }
+        const fetchedCats = [...new Set(originalData.map(item => item.cat))];
+        fetchedCats.forEach(cat => {
+            if (!categories.includes(cat)) categories.push(cat);
+        });
         
         select.innerHTML = '';
         categories.forEach(cat => {
@@ -234,13 +278,10 @@
         updateStatus();
     }
 
-    // data.json에 이미 반영된 문제는 localStorage 대기열에서 자동으로 제거
     function cleanupCustomQuestions() {
         if (originalData.length === 0) return;
-        
         const originalQuestionsSet = new Set(originalData.map(item => item.q.trim()));
         const filtered = customQuestions.filter(item => !originalQuestionsSet.has(item.q.trim()));
-        
         if (filtered.length !== customQuestions.length) {
             customQuestions = filtered;
             localStorage.setItem('my_custom_questions', JSON.stringify(customQuestions));
@@ -274,11 +315,7 @@
     });
 
     function updateStatus() {
-        if (originalData.length === 0) {
-            document.getElementById('statusMsg').innerHTML = `⚠️ data.json을 불러오지 못했습니다. (대기 중인 문제: <b>${customQuestions.length}</b>개)`;
-        } else {
-            document.getElementById('statusMsg').innerHTML = `원격 data.json (${originalData.length}개) 연동 완료 + 대기 중: <b>${customQuestions.length}</b>개`;
-        }
+        document.getElementById('statusMsg').innerHTML = `기존 data.json (${originalData.length}개) + 새로 추가된 문제: <b>${customQuestions.length}</b>개`;
     }
 
     document.getElementById('downloadBtn').addEventListener('click', function() {
@@ -297,7 +334,7 @@
         downloadAnchor.click();
         downloadAnchor.remove();
         
-        alert('🎉 data.json 파일 다운로드 완료!\n깃허브에 이 파일을 그대로 올리시면, 기존 문제와 새 문제가 완벽히 병합됩니다.');
+        alert('🎉 data.json 파일 다운로드 완료!\n깃허브에 이 파일을 그대로 올리시면 끝납니다.');
     });
 
     document.getElementById('clearBtn').addEventListener('click', function() {
@@ -307,8 +344,6 @@
             updateStatus();
         }
     });
-
-    window.addEventListener('DOMContentLoaded', initData);
 </script>
 </body>
 </html>
