@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>안경사 국가고시 스마트 암기 카드 - 문제 추가 관리자</title>
+<title>안경사 국가고시 - 초간편 문제 추가 관리자</title>
 <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
     
@@ -103,48 +103,31 @@
     }
     .btn-submit:hover { background-color: #219653; transform: translateY(-1px); }
     
-    .json-output-section {
-        margin-top: 20px;
+    .action-panel {
         background: #2d3436;
-        color: #f1f2f6;
+        color: white;
         padding: 20px;
-        border-radius: 12px;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
     }
-    .json-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .json-header span { font-weight: 600; font-size: 0.9rem; color: #b2bec3; }
-    .btn-copy {
-        background: var(--primary);
+    .btn-download {
+        background: #e67e22;
         color: white;
         border: none;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-    }
-    .btn-copy:hover { background: #357abd; }
-    pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-all;
-        font-family: 'Consolas', monospace;
-        font-size: 0.9rem;
-        max-height: 200px;
-        overflow-y: auto;
-    }
-    .badge {
-        background: #e74c3c;
-        color: white;
-        padding: 2px 6px;
+        width: 100%;
+        padding: 14px;
         border-radius: 10px;
-        font-size: 0.75rem;
-        vertical-align: middle;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 10px;
+        box-shadow: 0 4px 6px rgba(230, 126, 34, 0.3);
+        transition: background 0.2s;
     }
+    .btn-download:hover { background: #d35400; }
+    .status-msg { font-size: 0.9rem; color: #bdc3c7; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -177,25 +160,16 @@
             </div>
         </div>
         
-        <button type="submit" class="btn-submit">➕ 임시 저장소에 문제 추가하기</button>
+        <button type="submit" class="btn-submit">➕ 목록에 문제 추가하기</button>
     </form>
 </div>
 
-<div class="container">
-    <div class="json-header">
-        <span>📦 내가 추가한 모든 문제 패키지 (<span id="countBadge">0</span>개)</span>
-        <button class="btn-copy" id="copyAllBtn">전체 JSON 복사하기</button>
+<div class="action-panel">
+    <div class="status-msg" id="statusMsg">현재 담긴 추가 문제: <b>0</b>개</div>
+    <button class="btn-download" id="downloadBtn">📥 완성된 data.json 파일 다운로드</button>
+    <div class="helper-text" style="color: #95a5a6; margin-top: 10px;">
+        버튼을 누르면 기존 문제 + 새로 추가한 문제가 모두 포함된 <b>data.json</b> 파일이 다운로드됩니다.<br>그 파일을 깃허브 저장소에 그대로 올리시면 끝납니다!
     </div>
-    <div class="json-output-section" style="margin-top:0;">
-        <pre id="jsonOutput">추가된 문제가 없습니다.</pre>
-    </div>
-    <div class="helper-text" style="margin-top: 10px;">
-        📌 <b>GitHub Pages 반영 방법:</b><br>
-        1. 여기서 <b>[전체 JSON 복사하기]</b>를 누릅니다.<br>
-        2. 본인의 GitHub 저장소에 있는 <code>data.json</code> 파일에 들어가서 내용을 덮어쓰기 하거나 추가합니다.<br>
-        3. 깃허브에 푸시(Commit & Push)하면 웹사이트에 최종 반영됩니다!
-    </div>
-    <button id="clearBtn" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; margin-top:15px; cursor:pointer; font-size:0.85rem;">임시 저장소 초기화</button>
 </div>
 
 <script>
@@ -207,17 +181,18 @@
         "종합본"
     ];
 
+    let originalData = [];
     let customQuestions = JSON.parse(localStorage.getItem('my_custom_questions') || '[]');
 
-    async function initCategories() {
+    async function initData() {
         const select = document.getElementById('category');
         let categories = [...defaultCategories];
         
         try {
             const response = await fetch('data.json');
             if (response.ok) {
-                const data = await response.json();
-                const fetchedCats = [...new Set(data.map(item => item.cat))];
+                originalData = await response.json();
+                const fetchedCats = [...new Set(originalData.map(item => item.cat))];
                 fetchedCats.forEach(cat => {
                     if (!categories.includes(cat)) categories.push(cat);
                 });
@@ -234,7 +209,7 @@
             select.appendChild(opt);
         });
         
-        updateOutput();
+        updateStatus();
     }
 
     document.getElementById('addForm').addEventListener('submit', function(e) {
@@ -252,39 +227,35 @@
         document.getElementById('question').value = '';
         document.getElementById('answer').value = '';
         
-        updateOutput();
-        alert('✨ 브라우저 임시 저장소에 추가되었습니다!');
+        updateStatus();
+        alert('✨ 임시 목록에 추가되었습니다! (하단의 다운로드 버튼을 눌러주세요)');
     });
 
-    function updateOutput() {
-        document.getElementById('countBadge').innerText = customQuestions.length;
-        if (customQuestions.length === 0) {
-            document.getElementById('jsonOutput').innerText = "추가된 문제가 없습니다.";
-        } else {
-            document.getElementById('jsonOutput').innerText = JSON.stringify(customQuestions, null, 2);
-        }
+    function updateStatus() {
+        document.getElementById('statusMsg').innerHTML = `현재 담긴 추가 문제: <b>${customQuestions.length}</b>개`;
     }
 
-    document.getElementById('copyAllBtn').addEventListener('click', function() {
-        if (customQuestions.length === 0) {
-            alert('복사할 추가된 문제가 없습니다.');
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        // 기존 data.json 데이터 + 내가 추가한 커스텀 문제들을 합침
+        const finalData = [...originalData, ...customQuestions];
+        
+        if (finalData.length === 0) {
+            alert('저장할 데이터가 없습니다.');
             return;
         }
-        const text = document.getElementById('jsonOutput').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            alert('📋 추가한 문제들의 JSON 코드가 복사되었습니다! data.json에 붙여넣어 사용하세요.');
-        });
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(finalData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "data.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        
+        alert('🎉 data.json 파일이 성공적으로 다운로드되었습니다!\n이 파일을 깃허브에 그대로 업로드해 주세요.');
     });
 
-    document.getElementById('clearBtn').addEventListener('click', function() {
-        if(confirm('브라우저에 임시 저장된 문제들을 모두 삭제하시겠습니까?')) {
-            customQuestions = [];
-            localStorage.removeItem('my_custom_questions');
-            updateOutput();
-        }
-    });
-
-    window.addEventListener('DOMContentLoaded', initCategories);
+    window.addEventListener('DOMContentLoaded', initData);
 </script>
 </body>
 </html>
