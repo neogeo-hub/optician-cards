@@ -176,13 +176,13 @@
 </div>
 
 <div class="action-panel">
-    <div class="status-msg" id="statusMsg">새로 추가된 대기 중인 문제: <b>0</b>개</div>
+    <div class="status-msg" id="statusMsg">서버에서 data.json 로딩 중...</div>
     <button class="btn-download" id="downloadBtn">📥 병합된 최신 data.json 다운로드</button>
     <div>
         <button class="btn-clear" id="clearBtn">새로 추가한 목록 초기화 (비우기)</button>
     </div>
     <div class="helper-text" style="color: #95a5a6; margin-top: 15px;">
-        💡 이 버튼을 누르면 <b>기존 data.json</b>에 <b>새로 추가한 문제들만 정확히 중복 없이 합쳐진</b> 최종 파일이 다운로드됩니다.
+        💡 이 버튼을 누르면 <b>깃허브의 data.json</b>에 <b>새로 추가한 문제들만 정확히 중복 없이 합쳐진</b> 최종 파일이 다운로드됩니다.
     </div>
 </div>
 
@@ -203,17 +203,21 @@
         let categories = [...defaultCategories];
         
         try {
-            // 1. 현재 폴더(또는 서버)의 data.json을 먼저 불러옴
-            const response = await fetch('data.json');
+            // 캐시 방지용 타임스탬프 쿼리 붙여서 확실하게 원격 data.json 호출
+            const jsonUrl = 'data.json?t=' + new Date().getTime();
+            const response = await fetch(jsonUrl);
             if (response.ok) {
                 originalData = await response.json();
+                console.log("GitHub data.json 로드 성공, 총 문제 수:", originalData.length);
                 const fetchedCats = [...new Set(originalData.map(item => item.cat))];
                 fetchedCats.forEach(cat => {
                     if (!categories.includes(cat)) categories.push(cat);
                 });
+            } else {
+                console.warn("data.json 응답 상태 코드:", response.status);
             }
         } catch (e) {
-            console.log('data.json 로드 실패, 기본 카테고리 사용');
+            console.error('data.json 불러오기 실패:', e);
         }
         
         select.innerHTML = '';
@@ -228,11 +232,10 @@
         updateStatus();
     }
 
-    // data.json에 이미 반영된 문제는 localStorage 대기열에서 자동으로 제거해주는 안전 장치
+    // data.json에 이미 반영된 문제는 localStorage 대기열에서 자동으로 제거
     function cleanupCustomQuestions() {
         if (originalData.length === 0) return;
         
-        // 이미 originalData(q 기준)에 포함된 항목은 customQuestions에서 제외
         const originalQuestionsSet = new Set(originalData.map(item => item.q.trim()));
         const filtered = customQuestions.filter(item => !originalQuestionsSet.has(item.q.trim()));
         
@@ -249,7 +252,6 @@
         const q = document.getElementById('question').value.trim();
         const a = document.getElementById('answer').value.trim();
         
-        // data.json에 이미 있는 질문인지 체크
         const existsInOriginal = originalData.some(item => item.q.trim() === q);
         const existsInCustom = customQuestions.some(item => item.q.trim() === q);
         
@@ -270,11 +272,14 @@
     });
 
     function updateStatus() {
-        document.getElementById('statusMsg').innerHTML = `새로 추가된 대기 중인 문제: <b>${customQuestions.length}</b>개`;
+        if (originalData.length === 0) {
+            document.getElementById('statusMsg').innerHTML = `⚠️ data.json을 불러오지 못했습니다. (대기 중인 문제: <b>${customQuestions.length}</b>개)`;
+        } else {
+            document.getElementById('statusMsg').innerHTML = `원격 data.json (${originalData.length}개) + 새로 추가된 문제: <b>${customQuestions.length}</b>개`;
+        }
     }
 
     document.getElementById('downloadBtn').addEventListener('click', function() {
-        // 기존 data.json 데이터 + 새로 추가된 유니크한 문제들만 안전하게 합침
         const finalData = [...originalData, ...customQuestions];
         
         if (finalData.length === 0) {
@@ -290,7 +295,7 @@
         downloadAnchor.click();
         downloadAnchor.remove();
         
-        alert('🎉 data.json 파일 다운로드 완료!\n깃허브에 이 파일을 그대로 올리시면, 이미 반영된 문제는 유지되고 새 문제만 깔끔하게 추가됩니다.');
+        alert('🎉 data.json 파일 다운로드 완료!\n깃허브에 이 파일을 그대로 올리시면, 기존 문제와 새 문제가 완벽히 병합됩니다.');
     });
 
     document.getElementById('clearBtn').addEventListener('click', function() {
