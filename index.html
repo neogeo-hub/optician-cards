@@ -226,7 +226,7 @@
         });
     }
 
-    function filterByCategory(cat, btnElement) {
+function filterByCategory(cat, btnElement) {
         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
         if (btnElement) btnElement.classList.add('active');
         else {
@@ -237,6 +237,9 @@
         currentCategory = cat;
         filteredCards = cat === "전체보기" ? [...allFlashcards] : allFlashcards.filter(c => c.cat === cat);
         currentIndices = [...Array(filteredCards.length).keys()];
+        
+        shuffleArray(currentIndices); // 👈 이 줄을 추가해주시면 새로고침할 때마다 랜덤으로 섞입니다!
+        
         currentIndex = 0;
         
         if (card.classList.contains('is-flipped')) {
